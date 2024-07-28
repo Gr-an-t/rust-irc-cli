@@ -12,18 +12,24 @@ use threadpool::ThreadPool;
 use clap::Parser;
 
 #[derive(Parser)]
-#[clap(name = "rust-irc-cli", version = "0.1.0", author = "Gr-an-t")]
+#[clap(name = "rust-irc-cli", version = "0.0.1", author = "Gr-an-t")]
 struct Cli {
     #[arg(short, long, default_value = "127.0.0.1")]
     a: String,
 
     #[arg(short, long, default_value = "7878")]
     p: u16,
+
+    #[arg(short, long, default_value = "4")]
+    t: usize,
 }
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(4);
+    let cli = Cli::parse();
+    let address = format!("{}:{}", cli.a, cli.p);
+    let listener = TcpListener::bind(&address).unwrap();
+    let pool = ThreadPool::new(cli.t);
+    println!("Starting server at {}", &address);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
